@@ -12,7 +12,9 @@ No more fighting with garbage mattes or agonizing over "core" vs "edge" keys. Gi
 
 This is a brand new release, I'm sure you will discover many ways it can be improved! I invite everyone to help. Join us on the "Corridor Creates" Discord to share ideas, work, forks, etc! https://discord.gg/zvwUrdWXJm
 
-Also, if you are a novice at using python scripts much like I was, consider downloading a smart IDE like Antigravity (from google, it's free), downloading this repository, and then asking Antigravity to help you get up and running. I even made a LLM Handover doc in the docs/ directory
+Also, if you are a novice at using python scripts much like I was, consider downloading a smart IDE like Antigravity (from google, it's free), downloading this repository, and then asking Antigravity to help you get up and running. I even made a LLM Handover doc in the docs/ directory.
+
+Naturally, I have not tested everything. If you encounter errors, please consider patching the code as needed and submitting a pull request.
 
 ## Features
 
@@ -88,3 +90,12 @@ For the easiest experience, use the provided launcher scripts. These scripts lau
 ## Advanced Usage
 
 For developers looking for more details on the specifics of what is happening in the CorridorKey engine, check out the README in the `/CorridorKeyModule` folder. We also have a dedicated handover document outlining the pipeline architecture for AI assistants in `/docs/LLM_HANDOVER.md`.
+
+## Acknowledgements and Licensing
+
+CorridorKey integrates several open-source modules for Alpha Hint generation. We would like to explicitly credit and thank the following research teams:
+
+*   **Generative Video Matting (GVM):** Developed by the Advanced Intelligent Machines (AIM) research team at Zhejiang University. The GVM code and models are heavily utilized in the `gvm_core` module. Their work is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). You can find their source repository here: [aim-uofa/GVM](https://github.com/aim-uofa/GVM).
+*   **VideoMaMa:** Developed by the CVLAB at KAIST. The VideoMaMa architecture is utilized within the `VideoMaMaInferenceModule`. Their code is released under the [Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/), and their specific foundation model checkpoints (`dino_projection_mlp.pth`, `unet/*`) are subject to the [Stability AI Community License](https://stability.ai/license). You can find their source repository here: [cvlab-kaist/VideoMaMa](https://github.com/cvlab-kaist/VideoMaMa).
+
+By using these optional modules, you agree to abide by their respective Non-Commercial licenses. Please review their repositories for full terms.
