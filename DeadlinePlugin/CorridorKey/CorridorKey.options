@@ -1,0 +1,57 @@
+[TopSpace]
+Label=Top Colorspace
+Category=Color Management
+Type=string
+Description=Input colorspace for TOP (foreground).
+Default=ACES - ACEScg
+
+[BgSpace]
+Label=Background Colorspace
+Category=Color Management
+Type=string
+Description=Input colorspace for BG (background).
+Default=Output - sRGB
+
+[WorkSpace]
+Label=Working Colorspace
+Category=Color Management
+Type=string
+Description=Colorspace used for compositing.
+Default=ACES - ACEScg
+
+[OutSpace]
+Label=Output Colorspace
+Category=Color Management
+Type=string
+Description=Final colorspace before writing JPG.
+Default=Output - Rec.709
+
+[TopImage]
+Label=Top Image
+Category=Inputs
+Type=string
+Description=Top Image Path for the output comp.
+Required=true
+
+[BackgroundImage]
+Label=Background Image
+Category=Inputs
+Type=string
+Description=Background Image Path for the output comp.
+Required=true
+
+[OutputImage]
+Label=Output Image
+Category=Inputs
+Type=string
+Description=Output Image Path for the output comp.
+Required=true
+
+[Offset]
+Label=Background offset
+Category=Options
+Type=integer
+Minimum=-100000
+Maximum=100000
+Description=Offset information for the background first frame.
+Required=false

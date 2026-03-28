@@ -1,0 +1,34 @@
+[PythonExecutable]
+Label=Python Executable
+Category=Executables
+Type=filename
+Description=Path to Python 3.x used to run CorridorKey from Deadline.
+Default=C:\Python39\python.exe
+
+[RepositoryPath]
+Label=CorridorKey Repository Path
+Category=Executables
+Type=directory
+Description=Absolute path to the CorridorKey repository on the worker machine.
+Default=D:\CorridorKey_Deadline
+
+[CLIPath]
+Label=CorridorKey CLI Path
+Category=Executables
+Type=filename
+Description=Path to corridorkey_cli.py. If empty, RepositoryPath\corridorkey_cli.py will be used.
+Default=
+
+[UVExecutable]
+Label=uv Executable (optional)
+Category=Executables
+Type=filename
+Description=Path to uv executable. If empty, plugin will call python directly.
+Default=
+
+[OCIOConfig]
+Label=OCIO Config (.ocio)
+Category=Color Management
+Type=filename
+Description=Path to OCIO config exported as OCIO env var before launch.
+Default=\\rama\works\@INSTALLS\@OCIO\aces_1.2\config.ocio
