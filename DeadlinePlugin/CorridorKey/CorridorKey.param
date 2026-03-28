@@ -1,0 +1,119 @@
+[PythonExecutable]
+Label=Python Executable
+Category=Executables
+Type=filename
+Description=Path to Python 3.x used to run CorridorKey when uv is not configured.
+Default=C:\CorridorKey_Deadline\.venv\Scripts\python.exe
+
+[UVExecutable]
+Label=uv Executable (optional)
+Category=Executables
+Type=filename
+Description=Path to uv executable. If set, plugin launches via `uv run`.
+Default=
+
+[RepositoryPath]
+Label=CorridorKey Repository Path
+Category=Repository
+Type=string
+Description=Absolute path to the CorridorKey repository on the worker machine.
+Default=D:\CorridorKey_Deadline
+
+[CLIPath]
+Label=CorridorKey CLI Path (optional)
+Category=Repository
+Type=filename
+Description=Path to corridorkey_cli.py. If empty, RepositoryPath\corridorkey_cli.py is used.
+Default=
+
+[DefaultConfigFile]
+Label=Default Config JSON/TXT (optional)
+Category=Defaults
+Type=filename
+Description=Fallback config file read when job ConfigFile is empty.
+Default=
+
+[DefaultDevice]
+Label=Default Device
+Category=Defaults
+Type=string
+Description=Fallback device if not supplied by job/config.
+Default=auto
+
+[DefaultBackend]
+Label=Default Backend
+Category=Defaults
+Type=string
+Description=Fallback backend if not supplied by job/config.
+Default=auto
+
+[DefaultLinear]
+Label=Default Linear
+Category=Defaults
+Type=boolean
+Description=Fallback linear toggle if not supplied by job/config.
+Default=false
+
+[DefaultDespill]
+Label=Default Despill
+Category=Defaults
+Type=integer
+Description=Fallback despill value if not supplied by job/config.
+Default=5
+
+[DefaultDespeckle]
+Label=Default Despeckle
+Category=Defaults
+Type=boolean
+Description=Fallback despeckle toggle if not supplied by job/config.
+Default=true
+
+[DefaultDespeckleSize]
+Label=Default Despeckle Size
+Category=Defaults
+Type=integer
+Description=Fallback despeckle size if not supplied by job/config.
+Default=400
+
+[DefaultRefiner]
+Label=Default Refiner
+Category=Defaults
+Type=string
+Description=Fallback refiner multiplier if not supplied by job/config.
+Default=1.0
+
+[DefaultSkipExisting]
+Label=Default Skip Existing
+Category=Defaults
+Type=boolean
+Description=Fallback skip-existing toggle if not supplied by job/config.
+Default=true
+
+[DefaultMaxFrames]
+Label=Default Max Frames
+Category=Defaults
+Type=string
+Description=Fallback max-frames if not supplied by job/config.
+Default=
+
+[DefaultGenerateComp]
+Label=Default Generate Comp
+Category=Defaults
+Type=boolean
+Description=Fallback comp toggle if not supplied by job/config.
+Default=true
+
+[DefaultGpuPost]
+Label=Default GPU Post
+Category=Defaults
+Type=boolean
+Description=Fallback GPU post toggle if not supplied by job/config.
+Default=false
+
+
+[DefaultAutoAlphaMode]
+Label=Default Auto Alpha Mode
+Category=Defaults
+Type=string
+Description=Fallback strategy for missing AlphaHint (gvm or none).
+Default=gvm

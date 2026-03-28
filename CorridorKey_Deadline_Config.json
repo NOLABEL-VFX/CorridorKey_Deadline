@@ -1,0 +1,14 @@
+{
+  "input_path": "D:/Shots/Shot010",
+  "device": "auto",
+  "backend": "auto",
+  "linear": false,
+  "despill": 5,
+  "despeckle": true,
+  "despeckle_size": 400,
+  "refiner": 1.0,
+  "skip_existing": true,
+  "max_frames": null,
+  "generate_comp": true,
+  "gpu_post": false
+}

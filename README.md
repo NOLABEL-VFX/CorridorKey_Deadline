@@ -1,5 +1,7 @@
 # CorridorKey
 
+> This is an extended fork of the original CorridorKey repository, designed to work with Thinkbox Deadline Renderfarm workflows.
+
 
 https://github.com/user-attachments/assets/1fb27ea8-bc91-4ebc-818f-5a3b5585af08
 
