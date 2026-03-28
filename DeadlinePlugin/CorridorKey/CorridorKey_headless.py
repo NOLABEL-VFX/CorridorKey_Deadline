@@ -1,9 +1,8 @@
 import argparse
 import os
-import sys
 
 import clip_manager
-from clip_manager import InferenceSettings
+from clip_manager import InferenceSettings, generate_alphas
 from device_utils import resolve_device
 
 
@@ -35,11 +34,23 @@ def main() -> int:
         return 1
 
     clip_manager.CLIPS_DIR = input_path
+    device = resolve_device(args.device)
 
     clips = clip_manager.scan_clips()
     if not clips:
         print("[ERROR] no valid clips found in {}".format(input_path))
         return 1
+
+    missing_alpha = [c for c in clips if c.input_asset and c.alpha_asset is None]
+    if missing_alpha:
+        print("[INFO] {} clip(s) missing AlphaHint. Attempting auto-generation...".format(len(missing_alpha)))
+        generate_alphas(clips, device=device)
+        clips = clip_manager.scan_clips()
+
+    ready_clips = [c for c in clips if c.input_asset and c.alpha_asset]
+    if not ready_clips:
+        print("[ERROR] no clips are ready for inference (Input + AlphaHint required).")
+        return 2
 
     despill = max(0, min(10, int(args.despill))) / 10.0
     settings = InferenceSettings(
@@ -52,7 +63,6 @@ def main() -> int:
         gpu_post_processing=bool(args.gpu_post),
     )
 
-    device = resolve_device(args.device)
     clip_manager.run_inference(
         clips,
         device=device,
