@@ -3,7 +3,7 @@ Label=Python Executable
 Category=Executables
 Type=filename
 Description=Path to Python 3.x used to run CorridorKey when uv is not configured.
-Default=C:\Python39\python.exe
+Default=C:\CorridorKey_Deadline\.venv\Scripts\python.exe
 
 [UVExecutable]
 Label=uv Executable (optional)

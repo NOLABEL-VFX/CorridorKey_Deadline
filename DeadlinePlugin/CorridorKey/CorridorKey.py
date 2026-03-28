@@ -73,7 +73,7 @@ class CorridorKeyPlugin(DeadlinePlugin):
         repository_path = self.GetConfigEntryWithDefault("RepositoryPath", r"D:\CorridorKey_Deadline")
         cli_path = self.GetConfigEntryWithDefault("CLIPath", "").strip()
         uv_exe = self.GetConfigEntryWithDefault("UVExecutable", "").strip()
-        python_exe = self.GetConfigEntryWithDefault("PythonExecutable", r"C:\Python39\python.exe")
+        python_exe = self.GetConfigEntryWithDefault("PythonExecutable", r"C:\CorridorKey_Deadline\.venv\Scripts\python.exe")
 
         job_config_file = self.GetPluginInfoEntryWithDefault("ConfigFile", "").strip()
         default_config_file = self.GetConfigEntryWithDefault("DefaultConfigFile", "").strip()
