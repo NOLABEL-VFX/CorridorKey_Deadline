@@ -13,6 +13,7 @@ def main() -> int:
     parser.add_argument("--device", default="auto", choices=["auto", "cuda", "mps", "cpu"])
     parser.add_argument("--backend", default="auto", choices=["auto", "torch", "mlx"])
     parser.add_argument("--linear", action="store_true", help="Treat input as linear")
+    parser.add_argument("--srgb", action="store_false", dest="linear", help="Treat input as sRGB")
     parser.add_argument("--despill", type=int, default=5, help="Despill 0-10")
     parser.add_argument("--despeckle", action="store_true", default=True)
     parser.add_argument("--no-despeckle", action="store_false", dest="despeckle")
