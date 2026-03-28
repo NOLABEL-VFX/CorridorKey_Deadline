@@ -146,6 +146,16 @@ class CorridorKeyPlugin(DeadlinePlugin):
         )
         generate_comp = self._bool_from_sources("GenerateComp", True, json_data, "DefaultGenerateComp")
         gpu_post = self._bool_from_sources("GpuPost", False, json_data, "DefaultGpuPost")
+        auto_alpha_mode = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("AutoAlphaMode", ""),
+                json_data.get("auto_alpha_mode", ""),
+                self.GetConfigEntryWithDefault("DefaultAutoAlphaMode", "gvm"),
+            ],
+            "gvm",
+        ).lower()
+        if auto_alpha_mode not in ["gvm", "none"]:
+            auto_alpha_mode = "gvm"
 
         linear_flag = "--linear" if linear else "--srgb"
         despeckle_flag = "--despeckle" if despeckle else "--no-despeckle"
@@ -161,7 +171,7 @@ class CorridorKeyPlugin(DeadlinePlugin):
         run_args = (
             '"{runner}" --input-path "{input_path}" --device {device} --backend {backend}{max_frames} '
             '{skip} {linear} --despill {despill} {despeckle} --despeckle-size {despeckle_size} '
-            '--refiner {refiner} {comp} {gpu_post}'
+            '--refiner {refiner} {comp} {gpu_post} --auto-alpha-mode {auto_alpha_mode}'
         ).format(
             runner=runner_script,
             input_path=input_path,
@@ -176,6 +186,7 @@ class CorridorKeyPlugin(DeadlinePlugin):
             refiner=refiner,
             comp=comp_flag,
             gpu_post=gpu_post_flag,
+            auto_alpha_mode=auto_alpha_mode,
         )
 
         if uv_exe:

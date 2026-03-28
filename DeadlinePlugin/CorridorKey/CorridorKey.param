@@ -109,3 +109,11 @@ Category=Defaults
 Type=boolean
 Description=Fallback GPU post toggle if not supplied by job/config.
 Default=false
+
+
+[DefaultAutoAlphaMode]
+Label=Default Auto Alpha Mode
+Category=Defaults
+Type=string
+Description=Fallback strategy for missing AlphaHint (gvm or none).
+Default=gvm

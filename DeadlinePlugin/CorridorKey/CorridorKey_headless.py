@@ -25,6 +25,7 @@ def main() -> int:
     parser.add_argument("--no-comp", action="store_false", dest="generate_comp")
     parser.add_argument("--gpu-post", action="store_true", default=False)
     parser.add_argument("--cpu-post", action="store_false", dest="gpu_post")
+    parser.add_argument("--auto-alpha-mode", default="gvm", choices=["gvm", "none"])
 
     args = parser.parse_args()
 
@@ -43,9 +44,12 @@ def main() -> int:
 
     missing_alpha = [c for c in clips if c.input_asset and c.alpha_asset is None]
     if missing_alpha:
-        print("[INFO] {} clip(s) missing AlphaHint. Attempting auto-generation...".format(len(missing_alpha)))
-        generate_alphas(clips, device=device)
-        clips = clip_manager.scan_clips()
+        if args.auto_alpha_mode == "gvm":
+            print("[INFO] {} clip(s) missing AlphaHint. Attempting GVM auto-generation...".format(len(missing_alpha)))
+            generate_alphas(clips, device=device)
+            clips = clip_manager.scan_clips()
+        else:
+            print("[INFO] {} clip(s) missing AlphaHint and auto-alpha-mode=none, skipping generation.".format(len(missing_alpha)))
 
     ready_clips = [c for c in clips if c.input_asset and c.alpha_asset]
     if not ready_clips:

@@ -98,3 +98,12 @@ Category=Inference
 Type=boolean
 Description=Use experimental GPU post-processing.
 Default=false
+
+
+[AutoAlphaMode]
+Label=Auto Alpha Mode
+Category=Inference
+Type=enum
+Items=gvm;none
+Description=How to auto-create missing AlphaHint in headless mode.
+Default=gvm

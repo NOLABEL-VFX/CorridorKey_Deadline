@@ -7,14 +7,14 @@ These map directly to CorridorKey run settings:
 - InputPath / ConfigFile
 - Device / Backend
 - Linear / Despill / Despeckle / DespeckleSize / Refiner
-- SkipExisting / MaxFrames / GenerateComp / GpuPost
+- SkipExisting / MaxFrames / GenerateComp / GpuPost / AutoAlphaMode
 
 ## Plugin config defaults (`CorridorKey.param`)
 These define worker-level defaults and required paths:
 - PythonExecutable / UVExecutable
 - RepositoryPath / CLIPath
 - DefaultConfigFile
-- DefaultDevice / DefaultBackend / DefaultLinear / DefaultDespill / DefaultDespeckle / DefaultDespeckleSize / DefaultRefiner / DefaultSkipExisting / DefaultMaxFrames / DefaultGenerateComp / DefaultGpuPost
+- DefaultDevice / DefaultBackend / DefaultLinear / DefaultDespill / DefaultDespeckle / DefaultDespeckleSize / DefaultRefiner / DefaultSkipExisting / DefaultMaxFrames / DefaultGenerateComp / DefaultGpuPost / DefaultAutoAlphaMode
 
 `CorridorKey.py` resolves values with this precedence:
 1. Job options
