@@ -20,3 +20,6 @@ These define worker-level defaults and required paths:
 1. Job options
 2. Optional JSON config file
 3. Plugin default parameters
+
+
+Headless execution is performed by `DeadlinePlugin/CorridorKey/CorridorKey_headless.py` to avoid any interactive wizard prompts.

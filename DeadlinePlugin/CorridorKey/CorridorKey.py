@@ -147,10 +147,6 @@ class CorridorKeyPlugin(DeadlinePlugin):
         generate_comp = self._bool_from_sources("GenerateComp", True, json_data, "DefaultGenerateComp")
         gpu_post = self._bool_from_sources("GpuPost", False, json_data, "DefaultGpuPost")
 
-        cli_script = cli_path if cli_path else os.path.join(repository_path, "corridorkey_cli.py")
-        if not os.path.isfile(cli_script):
-            self.FailRender("corridorkey_cli.py not found at: " + cli_script)
-
         linear_flag = "--linear" if linear else "--srgb"
         despeckle_flag = "--despeckle" if despeckle else "--no-despeckle"
         skip_flag = "--skip-existing" if skip_existing else ""
@@ -158,17 +154,17 @@ class CorridorKeyPlugin(DeadlinePlugin):
         gpu_post_flag = "--gpu-post" if gpu_post else "--cpu-post"
         max_frames_flag = (" --max-frames " + str(max_frames)) if str(max_frames).strip() else ""
 
-        wizard_args = '"{cli}" --device {device} wizard "{input_path}"'.format(
-            cli=cli_script,
-            device=device,
-            input_path=input_path,
-        )
-        inference_args = (
-            '"{cli}" --device {device} run-inference --backend {backend}{max_frames} '
+        runner_script = os.path.join(repository_path, "DeadlinePlugin", "CorridorKey", "CorridorKey_headless.py")
+        if not os.path.isfile(runner_script):
+            self.FailRender("Headless runner not found at: " + runner_script)
+
+        run_args = (
+            '"{runner}" --input-path "{input_path}" --device {device} --backend {backend}{max_frames} '
             '{skip} {linear} --despill {despill} {despeckle} --despeckle-size {despeckle_size} '
             '--refiner {refiner} {comp} {gpu_post}'
         ).format(
-            cli=cli_script,
+            runner=runner_script,
+            input_path=input_path,
             device=device,
             backend=backend,
             max_frames=max_frames_flag,
@@ -183,18 +179,16 @@ class CorridorKeyPlugin(DeadlinePlugin):
         )
 
         if uv_exe:
-            args = '/c pushd "{repo}" && "{uv}" run --extra cuda python {wiz} && "{uv}" run --extra cuda python {inf}'.format(
+            args = '/c pushd "{repo}" && "{uv}" run --extra cuda python {run}'.format(
                 repo=repository_path,
                 uv=uv_exe,
-                wiz=wizard_args,
-                inf=inference_args,
+                run=run_args,
             )
         else:
-            args = '/c pushd "{repo}" && "{python}" {wiz} && "{python}" {inf}'.format(
+            args = '/c pushd "{repo}" && "{python}" {run}'.format(
                 repo=repository_path,
                 python=python_exe,
-                wiz=wizard_args,
-                inf=inference_args,
+                run=run_args,
             )
 
         self.LogInfo("CorridorKey args: " + args)
