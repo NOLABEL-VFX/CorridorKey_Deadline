@@ -1,6 +1,7 @@
 from Deadline.Events import *
 from Deadline.Plugins import *
 from Deadline.Scripting import *
+import json
 import os
 
 
@@ -19,11 +20,6 @@ class CorridorKeyPlugin(DeadlinePlugin):
         self.RenderExecutableCallback += self.RenderExecutable
         self.RenderArgumentCallback += self.RenderArgument
 
-        self.python_exe = r"C:\Python39\python.exe"
-        self.repository_path = r"D:\CorridorKey_Deadline"
-        self.cli_path = ""
-        self.uv_exe = ""
-
     def Cleanup(self):
         pass
 
@@ -36,33 +32,128 @@ class CorridorKeyPlugin(DeadlinePlugin):
             self.SetProcessEnvironmentVariable("OCIO", ocio)
 
     def RenderExecutable(self):
-        uv_cfg = self.GetConfigEntryWithDefault("UVExecutable", "").strip()
-        if uv_cfg:
-            return uv_cfg
-        return self.GetConfigEntryWithDefault("PythonExecutable", self.python_exe)
+        return "cmd.exe"
+
+    def _read_json_dict(self, path):
+        if not path:
+            return {}
+        if not os.path.isfile(path):
+            self.LogWarning("Config file does not exist: " + path)
+            return {}
+        try:
+            with open(path, "r") as fh:
+                data = json.load(fh)
+            if isinstance(data, dict):
+                return data
+            self.LogWarning("Config JSON is not an object, ignoring: " + path)
+            return {}
+        except Exception as exc:
+            self.LogWarning("Failed to parse config JSON '{}': {}".format(path, exc))
+            return {}
+
+    def _first_non_empty(self, values, fallback=""):
+        for value in values:
+            if value is None:
+                continue
+            txt = str(value).strip()
+            if txt != "":
+                return txt
+        return fallback
+
+    def _bool_from_sources(self, key, job_default, json_data, config_default_key):
+        # Job value takes top priority.
+        value = self.GetBooleanPluginInfoEntryWithDefault(key, job_default)
+        if self.GetPluginInfoEntryWithDefault(key, "") != "":
+            return value
+
+        # Then JSON if present.
+        if key.lower() in json_data:
+            raw = json_data.get(key.lower())
+            if isinstance(raw, bool):
+                return raw
+            return str(raw).strip().lower() in ["1", "true", "yes", "on"]
+
+        # Finally plugin config defaults.
+        return self.GetBooleanConfigEntryWithDefault(config_default_key, job_default)
 
     def RenderArgument(self):
-        self.repository_path = self.GetConfigEntryWithDefault("RepositoryPath", self.repository_path)
-        self.cli_path = self.GetConfigEntryWithDefault("CLIPath", "").strip()
-        self.uv_exe = self.GetConfigEntryWithDefault("UVExecutable", "").strip()
+        repository_path = self.GetConfigEntryWithDefault("RepositoryPath", r"D:\CorridorKey_Deadline")
+        cli_path = self.GetConfigEntryWithDefault("CLIPath", "").strip()
+        uv_exe = self.GetConfigEntryWithDefault("UVExecutable", "").strip()
 
-        input_path = self.GetPluginInfoEntryWithDefault("InputPath", "")
-        device = self.GetPluginInfoEntryWithDefault("Device", "auto")
-        backend = self.GetPluginInfoEntryWithDefault("Backend", "auto")
-        linear = self.GetBooleanPluginInfoEntryWithDefault("Linear", False)
-        despill = self.GetIntegerPluginInfoEntryWithDefault("Despill", 5)
-        despeckle = self.GetBooleanPluginInfoEntryWithDefault("Despeckle", True)
-        despeckle_size = self.GetIntegerPluginInfoEntryWithDefault("DespeckleSize", 400)
-        refiner = self.GetPluginInfoEntryWithDefault("Refiner", "1.0")
-        skip_existing = self.GetBooleanPluginInfoEntryWithDefault("SkipExisting", True)
-        generate_comp = self.GetBooleanPluginInfoEntryWithDefault("GenerateComp", True)
-        gpu_post = self.GetBooleanPluginInfoEntryWithDefault("GpuPost", False)
-        max_frames = self.GetPluginInfoEntryWithDefault("MaxFrames", "")
+        job_config_file = self.GetPluginInfoEntryWithDefault("ConfigFile", "").strip()
+        default_config_file = self.GetConfigEntryWithDefault("DefaultConfigFile", "").strip()
+        config_file = self._first_non_empty([job_config_file, default_config_file], "")
+        json_data = self._read_json_dict(config_file) if config_file.lower().endswith(".json") else {}
+
+        input_path = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("InputPath", ""),
+                json_data.get("input_path", ""),
+                json_data.get("target_path", ""),
+            ],
+            "",
+        )
 
         if not input_path:
-            self.FailRender("InputPath is required.")
+            self.FailRender("InputPath is required (job InputPath or JSON input_path/target_path).")
 
-        cli_script = self.cli_path if self.cli_path else os.path.join(self.repository_path, "corridorkey_cli.py")
+        device = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("Device", ""),
+                json_data.get("device", ""),
+                self.GetConfigEntryWithDefault("DefaultDevice", "auto"),
+            ],
+            "auto",
+        )
+        backend = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("Backend", ""),
+                json_data.get("backend", ""),
+                self.GetConfigEntryWithDefault("DefaultBackend", "auto"),
+            ],
+            "auto",
+        )
+
+        linear = self._bool_from_sources("Linear", False, json_data, "DefaultLinear")
+        despill = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("Despill", ""),
+                json_data.get("despill", ""),
+                self.GetConfigEntryWithDefault("DefaultDespill", "5"),
+            ],
+            "5",
+        )
+        despeckle = self._bool_from_sources("Despeckle", True, json_data, "DefaultDespeckle")
+        despeckle_size = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("DespeckleSize", ""),
+                json_data.get("despeckle_size", ""),
+                self.GetConfigEntryWithDefault("DefaultDespeckleSize", "400"),
+            ],
+            "400",
+        )
+        refiner = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("Refiner", ""),
+                json_data.get("refiner", ""),
+                self.GetConfigEntryWithDefault("DefaultRefiner", "1.0"),
+            ],
+            "1.0",
+        )
+        skip_existing = self._bool_from_sources("SkipExisting", True, json_data, "DefaultSkipExisting")
+        max_frames = self._first_non_empty(
+            [
+                self.GetPluginInfoEntryWithDefault("MaxFrames", ""),
+                json_data.get("max_frames", ""),
+                self.GetConfigEntryWithDefault("DefaultMaxFrames", ""),
+            ],
+            "",
+        )
+        generate_comp = self._bool_from_sources("GenerateComp", True, json_data, "DefaultGenerateComp")
+        gpu_post = self._bool_from_sources("GpuPost", False, json_data, "DefaultGpuPost")
+
+        cli_script = cli_path if cli_path else os.path.join(repository_path, "corridorkey_cli.py")
         if not os.path.isfile(cli_script):
             self.FailRender("corridorkey_cli.py not found at: " + cli_script)
 
@@ -71,44 +162,46 @@ class CorridorKeyPlugin(DeadlinePlugin):
         skip_flag = "--skip-existing" if skip_existing else ""
         comp_flag = "--comp" if generate_comp else "--no-comp"
         gpu_post_flag = "--gpu-post" if gpu_post else "--cpu-post"
-        max_frames_flag = (" --max-frames " + max_frames) if max_frames else ""
+        max_frames_flag = (" --max-frames " + str(max_frames)) if str(max_frames).strip() else ""
 
-        if self.uv_exe:
-            args = (
-                "run --extra cuda corridorkey --device {device} run-inference --backend {backend}{max_frames} "
-                "{skip} {linear} --despill {despill} {despeckle} --despeckle-size {despeckle_size} "
-                "--refiner {refiner} {comp} {gpu_post}"
-            ).format(
-                device=device,
-                backend=backend,
-                max_frames=max_frames_flag,
-                skip=skip_flag,
-                linear=linear_flag,
-                despill=despill,
-                despeckle=despeckle_flag,
-                despeckle_size=despeckle_size,
-                refiner=refiner,
-                comp=comp_flag,
-                gpu_post=gpu_post_flag,
+        wizard_args = '"{cli}" --device {device} wizard "{input_path}"'.format(
+            cli=cli_script,
+            device=device,
+            input_path=input_path,
+        )
+        inference_args = (
+            '"{cli}" --device {device} run-inference --backend {backend}{max_frames} '
+            '{skip} {linear} --despill {despill} {despeckle} --despeckle-size {despeckle_size} '
+            '--refiner {refiner} {comp} {gpu_post}'
+        ).format(
+            cli=cli_script,
+            device=device,
+            backend=backend,
+            max_frames=max_frames_flag,
+            skip=skip_flag,
+            linear=linear_flag,
+            despill=despill,
+            despeckle=despeckle_flag,
+            despeckle_size=despeckle_size,
+            refiner=refiner,
+            comp=comp_flag,
+            gpu_post=gpu_post_flag,
+        )
+
+        if uv_exe:
+            uv_wizard = 'run --extra cuda python {wizard}'.format(wizard=wizard_args)
+            uv_inference = 'run --extra cuda python {inference}'.format(inference=inference_args)
+            args = '/c "cd /d \"{repo}\" && {wiz} && {inf}"'.format(
+                repo=repository_path,
+                wiz=uv_wizard,
+                inf=uv_inference,
             )
         else:
-            args = (
-                '"{cli}" --device {device} run-inference --backend {backend}{max_frames} '
-                '{skip} {linear} --despill {despill} {despeckle} --despeckle-size {despeckle_size} '
-                '--refiner {refiner} {comp} {gpu_post}'
-            ).format(
-                cli=cli_script,
-                device=device,
-                backend=backend,
-                max_frames=max_frames_flag,
-                skip=skip_flag,
-                linear=linear_flag,
-                despill=despill,
-                despeckle=despeckle_flag,
-                despeckle_size=despeckle_size,
-                refiner=refiner,
-                comp=comp_flag,
-                gpu_post=gpu_post_flag,
+            args = '/c "cd /d \"{repo}\" && \"{python}\" {wiz} && \"{python}\" {inf}"'.format(
+                repo=repository_path,
+                python=self.GetConfigEntryWithDefault("PythonExecutable", r"C:\Python39\python.exe"),
+                wiz=wizard_args,
+                inf=inference_args,
             )
 
         self.LogInfo("CorridorKey args: " + args)

@@ -1,57 +1,100 @@
-[TopSpace]
-Label=Top Colorspace
-Category=Color Management
-Type=string
-Description=Input colorspace for TOP (foreground).
-Default=ACES - ACEScg
-
-[BgSpace]
-Label=Background Colorspace
-Category=Color Management
-Type=string
-Description=Input colorspace for BG (background).
-Default=Output - sRGB
-
-[WorkSpace]
-Label=Working Colorspace
-Category=Color Management
-Type=string
-Description=Colorspace used for compositing.
-Default=ACES - ACEScg
-
-[OutSpace]
-Label=Output Colorspace
-Category=Color Management
-Type=string
-Description=Final colorspace before writing JPG.
-Default=Output - Rec.709
-
-[TopImage]
-Label=Top Image
+[InputPath]
+Label=Input Path
 Category=Inputs
 Type=string
-Description=Top Image Path for the output comp.
-Required=true
-
-[BackgroundImage]
-Label=Background Image
-Category=Inputs
-Type=string
-Description=Background Image Path for the output comp.
-Required=true
-
-[OutputImage]
-Label=Output Image
-Category=Inputs
-Type=string
-Description=Output Image Path for the output comp.
-Required=true
-
-[Offset]
-Label=Background offset
-Category=Options
-Type=integer
-Minimum=-100000
-Maximum=100000
-Description=Offset information for the background first frame.
+Description=Shot folder or clip path to process. If a file is given, the parent folder is used.
 Required=false
+
+[ConfigFile]
+Label=Config JSON/TXT (optional)
+Category=Inputs
+Type=filename
+Description=Optional .json or key=value text config. Job fields override values from this file.
+Required=false
+
+[Device]
+Label=Device
+Category=Inference
+Type=enum
+Items=auto;cuda;mps;cpu
+Description=Compute device selection.
+Default=auto
+
+[Backend]
+Label=Backend
+Category=Inference
+Type=enum
+Items=auto;torch;mlx
+Description=Inference backend selection.
+Default=auto
+
+[Linear]
+Label=Input is Linear
+Category=Inference
+Type=boolean
+Description=Enable if input is linear. Disabled means sRGB input.
+Default=false
+
+[Despill]
+Label=Despill Strength
+Category=Inference
+Type=integer
+Minimum=0
+Maximum=10
+Description=Despill strength (0 to 10).
+Default=5
+
+[Despeckle]
+Label=Auto Despeckle
+Category=Inference
+Type=boolean
+Description=Remove tiny disconnected islands.
+Default=true
+
+[DespeckleSize]
+Label=Despeckle Size
+Category=Inference
+Type=integer
+Minimum=0
+Maximum=100000
+Description=Minimum pixel size threshold for despeckle.
+Default=400
+
+[Refiner]
+Label=Refiner Multiplier
+Category=Inference
+Type=float
+Minimum=0.01
+Maximum=10
+Description=Refiner strength multiplier.
+Default=1.0
+
+[SkipExisting]
+Label=Skip Existing Frames
+Category=Inference
+Type=boolean
+Description=Resume mode. Skips frames with existing outputs.
+Default=true
+
+[MaxFrames]
+Label=Max Frames (optional)
+Category=Inference
+Type=integer
+Minimum=1
+Maximum=10000000
+Description=Optional per-clip frame cap.
+Required=false
+
+[GenerateComp]
+Label=Generate Comp Preview
+Category=Inference
+Type=boolean
+Description=Generate composition preview outputs.
+Default=true
+
+[GpuPost]
+Label=GPU Post Processing
+Category=Inference
+Type=boolean
+Description=Use experimental GPU post-processing.
+Default=false
