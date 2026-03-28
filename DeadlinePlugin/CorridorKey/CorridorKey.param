@@ -15,7 +15,7 @@ Default=
 [RepositoryPath]
 Label=CorridorKey Repository Path
 Category=Repository
-Type=directory
+Type=string
 Description=Absolute path to the CorridorKey repository on the worker machine.
 Default=D:\CorridorKey_Deadline
 
@@ -109,10 +109,3 @@ Category=Defaults
 Type=boolean
 Description=Fallback GPU post toggle if not supplied by job/config.
 Default=false
-
-[OCIOConfig]
-Label=OCIO Config (.ocio)
-Category=Color Management
-Type=filename
-Description=Path to OCIO config exported as OCIO env var before launch.
-Default=\\rama\works\@INSTALLS\@OCIO\aces_1.2\config.ocio

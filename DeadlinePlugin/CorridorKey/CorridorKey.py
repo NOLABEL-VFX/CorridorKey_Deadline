@@ -27,10 +27,6 @@ class CorridorKeyPlugin(DeadlinePlugin):
         self.SingleFramesOnly = False
         self.StdoutHandling = True
 
-        ocio = self.GetConfigEntryWithDefault("OCIOConfig", "")
-        if ocio:
-            self.SetProcessEnvironmentVariable("OCIO", ocio)
-
     def RenderExecutable(self):
         return "cmd.exe"
 
@@ -61,25 +57,23 @@ class CorridorKeyPlugin(DeadlinePlugin):
         return fallback
 
     def _bool_from_sources(self, key, job_default, json_data, config_default_key):
-        # Job value takes top priority.
         value = self.GetBooleanPluginInfoEntryWithDefault(key, job_default)
         if self.GetPluginInfoEntryWithDefault(key, "") != "":
             return value
 
-        # Then JSON if present.
         if key.lower() in json_data:
             raw = json_data.get(key.lower())
             if isinstance(raw, bool):
                 return raw
             return str(raw).strip().lower() in ["1", "true", "yes", "on"]
 
-        # Finally plugin config defaults.
         return self.GetBooleanConfigEntryWithDefault(config_default_key, job_default)
 
     def RenderArgument(self):
         repository_path = self.GetConfigEntryWithDefault("RepositoryPath", r"D:\CorridorKey_Deadline")
         cli_path = self.GetConfigEntryWithDefault("CLIPath", "").strip()
         uv_exe = self.GetConfigEntryWithDefault("UVExecutable", "").strip()
+        python_exe = self.GetConfigEntryWithDefault("PythonExecutable", r"C:\Python39\python.exe")
 
         job_config_file = self.GetPluginInfoEntryWithDefault("ConfigFile", "").strip()
         default_config_file = self.GetConfigEntryWithDefault("DefaultConfigFile", "").strip()
@@ -189,17 +183,16 @@ class CorridorKeyPlugin(DeadlinePlugin):
         )
 
         if uv_exe:
-            uv_wizard = 'run --extra cuda python {wizard}'.format(wizard=wizard_args)
-            uv_inference = 'run --extra cuda python {inference}'.format(inference=inference_args)
-            args = '/c "cd /d \"{repo}\" && {wiz} && {inf}"'.format(
+            args = '/c pushd "{repo}" && "{uv}" run --extra cuda python {wiz} && "{uv}" run --extra cuda python {inf}'.format(
                 repo=repository_path,
-                wiz=uv_wizard,
-                inf=uv_inference,
+                uv=uv_exe,
+                wiz=wizard_args,
+                inf=inference_args,
             )
         else:
-            args = '/c "cd /d \"{repo}\" && \"{python}\" {wiz} && \"{python}\" {inf}"'.format(
+            args = '/c pushd "{repo}" && "{python}" {wiz} && "{python}" {inf}'.format(
                 repo=repository_path,
-                python=self.GetConfigEntryWithDefault("PythonExecutable", r"C:\Python39\python.exe"),
+                python=python_exe,
                 wiz=wizard_args,
                 inf=inference_args,
             )

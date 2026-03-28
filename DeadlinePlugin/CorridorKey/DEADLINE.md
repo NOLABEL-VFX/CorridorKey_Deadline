@@ -15,7 +15,6 @@ These define worker-level defaults and required paths:
 - RepositoryPath / CLIPath
 - DefaultConfigFile
 - DefaultDevice / DefaultBackend / DefaultLinear / DefaultDespill / DefaultDespeckle / DefaultDespeckleSize / DefaultRefiner / DefaultSkipExisting / DefaultMaxFrames / DefaultGenerateComp / DefaultGpuPost
-- OCIOConfig
 
 `CorridorKey.py` resolves values with this precedence:
 1. Job options
