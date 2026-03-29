@@ -10,7 +10,7 @@ echo.
 
 where git >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [1/4] Git is already available on PATH. Skipping install.
+    echo [1/5] Git is already available on PATH. Skipping install.
 ) else (
     where winget >nul 2>&1
     if %errorlevel% neq 0 (
@@ -19,7 +19,7 @@ if %errorlevel% equ 0 (
         exit /b 1
     )
 
-    echo [1/4] Installing Git via winget...
+    echo [1/5] Installing Git via winget...
     winget install -e --id Git.Git --accept-source-agreements --accept-package-agreements
     if %errorlevel% neq 0 (
         echo [ERROR] Git installation failed.
@@ -35,19 +35,28 @@ if %errorlevel% equ 0 (
 )
 
 echo.
-echo [2/4] Running Install_CorridorKey_Windows.bat...
+echo [2/5] Running Install_CorridorKey_Windows.bat...
 call :run_without_pause "Install_CorridorKey_Windows.bat"
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo.
-echo [3/4] Running Install_GVM_Windows.bat...
+echo [3/5] Running Install_GVM_Windows.bat...
 call :run_without_pause "Install_GVM_Windows.bat"
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo.
-echo [4/4] Running Install_VideoMaMa_Windows.bat...
+echo [4/5] Running Install_VideoMaMa_Windows.bat...
 call :run_without_pause "Install_VideoMaMa_Windows.bat"
 if %errorlevel% neq 0 exit /b %errorlevel%
+
+
+echo.
+echo [5/5] Re-applying CUDA Python environment (uv sync --extra cuda)...
+uv sync --extra cuda
+if %errorlevel% neq 0 (
+    echo [ERROR] Failed to apply CUDA Python environment.
+    exit /b 1
+)
 
 echo.
 echo ===================================================
