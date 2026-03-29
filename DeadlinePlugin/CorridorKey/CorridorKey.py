@@ -3,6 +3,8 @@ from Deadline.Plugins import *
 from Deadline.Scripting import *
 import json
 import os
+import shutil
+import subprocess
 
 
 def GetDeadlinePlugin():
@@ -16,6 +18,7 @@ def CleanupDeadlinePlugin(deadlinePlugin):
 class CorridorKeyPlugin(DeadlinePlugin):
     def __init__(self):
         super(CorridorKeyPlugin, self).__init__()
+        self.StartJobCallback += self.StartJob
         self.InitializeProcessCallback += self.InitializeProcess
         self.RenderExecutableCallback += self.RenderExecutable
         self.RenderArgumentCallback += self.RenderArgument
@@ -29,6 +32,82 @@ class CorridorKeyPlugin(DeadlinePlugin):
 
     def RenderExecutable(self):
         return "cmd.exe"
+
+    def StartJob(self):
+        # type: () -> None
+        self.LogInfo("Start Job called")
+
+        repository_path = self.GetConfigEntryWithDefault(
+            "RepositoryPath",
+            r"C:\CorridorKey_Deadline"
+        )
+        shared_repository_path = self.GetConfigEntryWithDefault(
+            "SharedRepositoryPath",
+            r"\\rama\works\@INTERNAL_TOOLS\INSTALL\corridorkey_deadline\CorridorKey_Deadline"
+        )
+
+        def folder_exists_and_not_empty(path):
+            return os.path.isdir(path) and bool(os.listdir(path))
+
+        try:
+            if folder_exists_and_not_empty(repository_path):
+                self.LogInfo(
+                    "Repository already exists and is not empty: {}".format(repository_path)
+                )
+            else:
+                self.LogInfo(
+                    "Repository missing or empty, copying from shared path."
+                )
+                self.LogInfo("Source: {}".format(shared_repository_path))
+                self.LogInfo("Target: {}".format(repository_path))
+
+                if not os.path.isdir(shared_repository_path):
+                    raise RuntimeError(
+                        "Shared repository does not exist: {}".format(shared_repository_path)
+                    )
+
+                if not os.path.exists(repository_path):
+                    os.makedirs(repository_path)
+
+                for item_name in os.listdir(shared_repository_path):
+                    src_item = os.path.join(shared_repository_path, item_name)
+                    dst_item = os.path.join(repository_path, item_name)
+
+                    if os.path.isdir(src_item):
+                        if os.path.exists(dst_item):
+                            shutil.rmtree(dst_item)
+                        shutil.copytree(src_item, dst_item)
+                    else:
+                        shutil.copy2(src_item, dst_item)
+
+                self.LogInfo("Repository copied successfully.")
+
+            install_bat = os.path.join(repository_path, "nl_install.bat")
+            if not os.path.isfile(install_bat):
+                raise RuntimeError(
+                    "Missing installer: {}".format(install_bat)
+                )
+
+            self.LogInfo("Running installer: {}".format(install_bat))
+            process = subprocess.Popen(
+                [install_bat],
+                cwd=repository_path,
+                shell=True
+            )
+            exit_code = process.wait()
+
+            if exit_code != 0:
+                raise RuntimeError(
+                    "nl_install.bat failed with exit code {}".format(exit_code)
+                )
+
+            self.LogInfo("Installer completed successfully.")
+
+        except Exception as e:
+            self.FailRender(
+                "Failed preparing CorridorKey install: {}".format(e)
+            )
+            return
 
     def _read_json_dict(self, path):
         if not path:

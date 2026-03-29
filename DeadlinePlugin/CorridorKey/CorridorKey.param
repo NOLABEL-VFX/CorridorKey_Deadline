@@ -19,6 +19,13 @@ Type=string
 Description=Absolute path to the CorridorKey repository on the worker machine.
 Default=D:\CorridorKey_Deadline
 
+[SharedRepositoryPath]
+Label=Shared CorridorKey Repository Path
+Category=Repository
+Type=string
+Description=Network path used to copy repository contents when RepositoryPath is missing or empty.
+Default=\\rama\works\@INTERNAL_TOOLS\INSTALL\corridorkey_deadline\CorridorKey_Deadline
+
 [CLIPath]
 Label=CorridorKey CLI Path (optional)
 Category=Repository
