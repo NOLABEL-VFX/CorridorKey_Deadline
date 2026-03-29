@@ -8,18 +8,30 @@ echo   (Git + CorridorKey + GVM + VideoMaMa)
 echo ===================================================
 echo.
 
-where winget >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] winget is not available on this system.
-    echo Install App Installer from Microsoft Store, then run this script again.
-    exit /b 1
-)
+where git >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [1/4] Git is already available on PATH. Skipping install.
+) else (
+    where winget >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [ERROR] winget is not available on this system.
+        echo Install App Installer from Microsoft Store, then run this script again.
+        exit /b 1
+    )
 
-echo [1/4] Installing Git via winget...
-winget install -e --id Git.Git --accept-source-agreements --accept-package-agreements
-if %errorlevel% neq 0 (
-    echo [ERROR] Git installation failed.
-    exit /b 1
+    echo [1/4] Installing Git via winget...
+    winget install -e --id Git.Git --accept-source-agreements --accept-package-agreements
+    if %errorlevel% neq 0 (
+        echo [ERROR] Git installation failed.
+        exit /b 1
+    )
+
+    where git >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [ERROR] Git install completed but git is still not launchable in this shell.
+        echo Close and reopen Command Prompt, then run this script again.
+        exit /b 1
+    )
 )
 
 echo.
