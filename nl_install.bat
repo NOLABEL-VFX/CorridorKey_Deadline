@@ -2,6 +2,9 @@
 setlocal
 TITLE CorridorKey + GVM + VideoMaMa Full Installer
 
+:: Ensure uv's default install directory is visible to this shell session.
+set "PATH=%USERPROFILE%\.local\bin;%PATH%"
+
 echo ===================================================
 echo   CorridorKey Full Windows Installer
 echo   (Git + CorridorKey + GVM + VideoMaMa)
@@ -52,6 +55,12 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo.
 echo [5/5] Re-applying CUDA Python environment (uv sync --extra cuda)...
+where uv >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] uv is not available on PATH in this shell.
+    echo Close and reopen Command Prompt, then run this script again.
+    exit /b 1
+)
 uv sync --extra cuda
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to apply CUDA Python environment.
